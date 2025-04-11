@@ -38,8 +38,9 @@ def read_data_from_file(file_path):
     return n, cost, precedence
 
 
-file_path = './Data/br17.10.sop'
+file_path = './Data/ESC47.sop'
 n, cost, precedence = read_data_from_file(file_path)
+
 
 def satisfies_constraints(chromosome):
     """Check if the chromosome respects the precedence constraints."""
@@ -147,8 +148,3 @@ solution, final_cost = gwo_sop()
 
 print("\nEstimated optimal solution:", solution)
 print("Total cost:", final_cost)
-
-
-
-
-
