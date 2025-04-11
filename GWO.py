@@ -1,5 +1,5 @@
 import random
-
+import time
 n = 4
 cost = [
     [0, 5, 0, 9],
@@ -73,5 +73,47 @@ def combine(alpha, beta, delta):
         return new_solution
 
     return generate_valid_solution()
+
+def gwo_sop(num_wolves=20, max_iter=100):
+    # Initialize population with valid solutions.
+    population = []
+    for _ in range(num_wolves):
+        sol = generate_valid_solution()
+        if sol is None:
+            return None, float("inf")
+        population.append(sol)
+
+    start_time = time.time()  # Timer start
+
+    for gen in range(max_iter):
+        population.sort(key=fitness, reverse=True)
+        alpha = population[0]
+        beta = population[1]
+        delta = population[2]
+
+        new_wolves = [alpha, beta, delta]  # Elitism: preserving top three solutions
+
+        while len(new_wolves) < num_wolves:
+            new_sol = combine(alpha, beta, delta)
+            if random.random() < 0.3:  # Small mutation probability
+                i, j = random.sample(range(n), 2)
+                new_sol[i], new_sol[j] = new_sol[j], new_sol[i]
+                if not satisfies_constraints(new_sol):
+                    new_sol = generate_valid_solution()
+
+            if total_cost(new_sol) == float("inf"):
+                new_sol = generate_valid_solution()
+
+            if satisfies_constraints(new_sol) and total_cost(new_sol) != float("inf"):
+                new_wolves.append(new_sol)
+
+        population = new_wolves
+        print(f"Generation {gen + 1} | Minimal cost: {total_cost(alpha):.2f}")
+
+    elapsed_time = time.time() - start_time  # Timer end
+    print(f"Total processing time: {elapsed_time:.4f} seconds")
+    return alpha, total_cost(alpha)
+
+
 
 
