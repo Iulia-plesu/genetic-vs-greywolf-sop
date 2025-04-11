@@ -1,18 +1,46 @@
 import random
 import time
-n = 4
-cost = [
-    [0, 5, 0, 9],
-    [0, 0, 7, 0],
-    [0, 0, 0, 2],
-    [0, 0, 0, 0]
-]
 
-precedence = [(0, 2), (1, 3)]
 
-# -------------------------------
-# SOP Functions
-# -------------------------------
+def read_data_from_file(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+
+    n = 0
+    cost = []
+    precedence = []
+    reading_costs = False
+    found_dimension = False
+    matrix_row_count = 0
+
+    for line in lines:
+        line = line.strip()
+        if not found_dimension and line.startswith("DIMENSION"):
+            n = int(line.split(":")[1].strip())
+            found_dimension = True
+        elif line.startswith("EDGE_WEIGHT_SECTION"):
+            reading_costs = True
+            continue
+        elif line.startswith("EOF"):
+            break
+        elif reading_costs:
+
+            if len(line.split()) == 1:
+                continue
+            row = list(map(int, line.split()))
+
+            row = [float("inf") if val == -1 else val for val in row]
+            cost.append(row)
+            matrix_row_count += 1
+            if matrix_row_count == n:
+                break
+
+    return n, cost, precedence
+
+
+file_path = './Data/br17.10.sop'
+n, cost, precedence = read_data_from_file(file_path)
+
 def satisfies_constraints(chromosome):
     """Check if the chromosome respects the precedence constraints."""
     pos = {gene: idx for idx, gene in enumerate(chromosome)}
@@ -75,7 +103,7 @@ def combine(alpha, beta, delta):
     return generate_valid_solution()
 
 def gwo_sop(num_wolves=20, max_iter=100):
-    # Initialize population with valid solutions.
+
     population = []
     for _ in range(num_wolves):
         sol = generate_valid_solution()
@@ -91,7 +119,7 @@ def gwo_sop(num_wolves=20, max_iter=100):
         beta = population[1]
         delta = population[2]
 
-        new_wolves = [alpha, beta, delta]  # Elitism: preserving top three solutions
+        new_wolves = [alpha, beta, delta]
 
         while len(new_wolves) < num_wolves:
             new_sol = combine(alpha, beta, delta)
@@ -113,6 +141,13 @@ def gwo_sop(num_wolves=20, max_iter=100):
     elapsed_time = time.time() - start_time  # Timer end
     print(f"Total processing time: {elapsed_time:.4f} seconds")
     return alpha, total_cost(alpha)
+
+
+solution, final_cost = gwo_sop()
+
+print("\nEstimated optimal solution:", solution)
+print("Total cost:", final_cost)
+
 
 
 
