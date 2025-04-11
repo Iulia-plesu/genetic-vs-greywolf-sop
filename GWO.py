@@ -29,5 +29,18 @@ def total_cost(chromosome):
 def fitness(chromosome):
     return 1 / (total_cost(chromosome) + 1e-6)
 
+def generate_valid_solution(max_attempts=1000):
+    attempts = 0
+    while attempts < max_attempts:
+        p = list(range(n))
+        random.shuffle(p)
+        if valid_constraint(p):
+            return p
+        else:
+            attempts += 1
+            print(f"The generated solution is not valid.: {p}, test {attempts}/{max_attempts}")
+
+    print("Maximum number of attempts reached to generate a valid solution.")
+    return None
 
 
