@@ -41,7 +41,7 @@ def read_data_from_file(file_path):
     return n, cost, precedence
 
 
-file_path = './Data/br17.10.sop'
+file_path = '../Data/ESC47.sop'
 n, cost, precedence = read_data_from_file(file_path)
 
 
