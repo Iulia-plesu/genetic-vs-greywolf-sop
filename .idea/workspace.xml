@@ -1,26 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c471ff7a-21fe-4d5a-963b-e84e15049d34" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Genetic_alg/Main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Greywolf/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/genetic-vs-greywolf-sop.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GWO.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/.idea/genetic.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/Main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/genetic/.idea/genetic.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/genetic/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Genetic/genetic/.idea/workspace.xml" beforeDir="false" />
-    </list>
+    <list default="true" id="c471ff7a-21fe-4d5a-963b-e84e15049d34" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,21 +10,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2vfxyCHkqlW9UESA0ecbmu4geBh" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.Main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
