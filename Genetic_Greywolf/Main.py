@@ -130,9 +130,9 @@ if __name__ == "__main__":
     for a, b in precedence:
         precedence_dict[b].add(a)
 
-    print("Număr de constrângeri:", len(precedence_dict))
+    print("Numar de constrangeri:", len(precedence_dict))
 
     sol, final_cost = hybrid_ga_gwo()
 
-    print("\nSoluție optimă:", sol)
+    print("\nSolutie optima:", sol)
     print("Cost total:", final_cost)
