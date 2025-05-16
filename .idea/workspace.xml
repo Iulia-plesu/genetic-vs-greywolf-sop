@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c471ff7a-21fe-4d5a-963b-e84e15049d34" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Genetic/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Genetic_Greywolf/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic_Greywolf/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Greywolf/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Greywolf/Main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

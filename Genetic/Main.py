@@ -2,8 +2,16 @@ import random
 import time
 import heapq
 
-
 def read_sop_file_v2(filename):
+    """
+    Reads a SOP (Sequential Ordering Problem) file and extracts the cost matrix.
+
+    Args:
+        filename (str): Path to the SOP instance file.
+
+    Returns:
+        list[list[int]]: Cost matrix.
+    """
     matrix, reading = [], False
     with open(filename) as f:
         for line in f:
@@ -18,6 +26,15 @@ def read_sop_file_v2(filename):
     return matrix
 
 def extract_precedences_v2(mat):
+    """
+    Extracts precedence constraints from the SOP matrix.
+
+    Args:
+        mat (list[list[int]]): SOP matrix with -1 representing precedence.
+
+    Returns:
+        tuple[dict, dict]: Two dictionaries containing predecessors and successors.
+    """
     n = len(mat)
     preds = {i: [] for i in range(n)}
     succs = {i: [] for i in range(n)}
@@ -29,17 +46,56 @@ def extract_precedences_v2(mat):
     return preds, succs
 
 def preds_to_constraints(preds):
+    """
+    Converts predecessor dictionary into a list of (from, to) constraints.
+
+    Args:
+        preds (dict): Predecessor dictionary.
+
+    Returns:
+        list[tuple[int, int]]: List of precedence constraints.
+    """
     return [(p, n) for n, pred in preds.items() for p in pred]
 
 def is_valid(sequence, constraints):
+    """
+    Validates if a given sequence satisfies the precedence constraints.
+
+    Args:
+        sequence (list[int]): Route/sequence of nodes.
+        constraints (list[tuple[int, int]]): List of constraints.
+
+    Returns:
+        bool: True if sequence is valid, False otherwise.
+    """
     pos = {v: i for i, v in enumerate(sequence)}
     return all(pos[a] < pos[b] for a, b in constraints)
 
 def fitness(route, matrix):
+    """
+    Calculates the total cost of a given route.
+
+    Args:
+        route (list[int]): Sequence of nodes.
+        matrix (list[list[int]]): Cost matrix.
+
+    Returns:
+        int: Total cost of the route.
+    """
     return sum(matrix[route[i]][route[i + 1]] for i in range(len(route) - 1))
 
-
 def generate_initial_population(pop_size, nodes, constraints):
+    """
+    Generates a valid initial population using randomized topological sorting.
+
+    Args:
+        pop_size (int): Population size.
+        nodes (list[int]): List of node indices.
+        constraints (list[tuple[int, int]]): Precedence constraints.
+
+    Returns:
+        list[list[int]]: List of valid sequences.
+    """
     graph = {node: set() for node in nodes}
     in_degree = {node: 0 for node in nodes}
     for a, b in constraints:
@@ -65,8 +121,17 @@ def generate_initial_population(pop_size, nodes, constraints):
             population.append(repair_sequence(random.sample(nodes, len(nodes)), constraints))
     return population
 
-
 def repair_sequence(seq, constraints):
+    """
+    Repairs a sequence to satisfy precedence constraints using a greedy swap.
+
+    Args:
+        seq (list[int]): Node sequence.
+        constraints (list[tuple[int, int]]): Constraints.
+
+    Returns:
+        list[int]: Repaired sequence.
+    """
     pos = {n: i for i, n in enumerate(seq)}
     for a, b in constraints:
         if pos[a] > pos[b]:
@@ -76,9 +141,31 @@ def repair_sequence(seq, constraints):
     return seq
 
 def tournament_selection(population, matrix, k=3):
+    """
+    Selects a parent using tournament selection.
+
+    Args:
+        population (list[list[int]]): Current population.
+        matrix (list[list[int]]): Cost matrix.
+        k (int): Tournament size.
+
+    Returns:
+        list[int]: Selected individual.
+    """
     return min(random.sample(population, k), key=lambda r: fitness(r, matrix))
 
 def order_crossover(p1, p2, constraints):
+    """
+    Applies Order Crossover (OX) and repairs the child to respect constraints.
+
+    Args:
+        p1 (list[int]): Parent 1.
+        p2 (list[int]): Parent 2.
+        constraints (list[tuple[int, int]]): Constraints.
+
+    Returns:
+        list[int]: Valid offspring.
+    """
     size = len(p1)
     a, b = sorted(random.sample(range(size), 2))
     child = [None] * size
@@ -94,6 +181,17 @@ def order_crossover(p1, p2, constraints):
     return repair_sequence(child, constraints)
 
 def mutate(route, constraints, mutation_rate):
+    """
+    Applies mutation to the route with a given probability.
+
+    Args:
+        route (list[int]): Individual to mutate.
+        constraints (list[tuple[int, int]]): Constraints.
+        mutation_rate (float): Probability of mutation.
+
+    Returns:
+        list[int]: Mutated individual.
+    """
     if random.random() < mutation_rate:
         for _ in range(5):
             i, j = sorted(random.sample(range(len(route)), 2))
@@ -104,8 +202,18 @@ def mutate(route, constraints, mutation_rate):
         return repair_sequence(route, constraints)
     return route
 
-
 def local_search(route, matrix, constraints):
+    """
+    Applies simple local search by pairwise swaps to improve fitness.
+
+    Args:
+        route (list[int]): Current route.
+        matrix (list[list[int]]): Cost matrix.
+        constraints (list[tuple[int, int]]): Constraints.
+
+    Returns:
+        list[int]: Locally improved route.
+    """
     best = route[:]
     best_cost = fitness(best, matrix)
     for _ in range(50):
@@ -118,8 +226,19 @@ def local_search(route, matrix, constraints):
                 best, best_cost = new_route, new_cost
     return best
 
-
 def genetic_algorithm(matrix, constraints, pop_size=100, generations=1500):
+    """
+    Runs the Genetic Algorithm to solve the SOP.
+
+    Args:
+        matrix (list[list[int]]): SOP cost matrix.
+        constraints (list[tuple[int, int]]): Precedence constraints.
+        pop_size (int): Population size.
+        generations (int): Number of generations.
+
+    Returns:
+        tuple[list[int], float]: Best solution and its cost.
+    """
     nodes = list(range(len(matrix)))
     population = generate_initial_population(pop_size, nodes, constraints)
     best_solution = min(population, key=lambda r: fitness(r, matrix))
@@ -131,6 +250,7 @@ def genetic_algorithm(matrix, constraints, pop_size=100, generations=1500):
         population.sort(key=lambda r: fitness(r, matrix))
         elites = population[:max(5, pop_size // 10)]
 
+        # Increase mutation rate over time to escape local minima
         if gen % 100 == 0 and gen > 0:
             mutation_rate = min(0.5, mutation_rate + 0.05)
 
@@ -157,9 +277,10 @@ def genetic_algorithm(matrix, constraints, pop_size=100, generations=1500):
     print(f"\nFinal Time: {time.time() - start_time:.2f}s")
     return best_solution, best_cost
 
-
 if __name__ == "__main__":
-    filename = r"..\Data\ESC47.sop"
+    # Path to SOP instance file
+    filename = r"..\Data\p43.1.sop"
+
     matrix = read_sop_file_v2(filename)
     preds, succs = extract_precedences_v2(matrix)
     constraints = preds_to_constraints(preds)
@@ -176,4 +297,3 @@ if __name__ == "__main__":
 
     print(f"\nBest route: {best_route}")
     print(f"Best cost: {best_cost}")
-    print(f"Is valid? {is_valid(best_route, constraints)}")

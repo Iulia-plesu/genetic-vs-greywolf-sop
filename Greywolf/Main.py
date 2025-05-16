@@ -2,8 +2,9 @@ import numpy as np
 import random
 import time
 
-# --- 1. Citire fișier SOP ---
+# --- 1. Read SOP file into a cost matrix ---
 def read_sop_file(filename):
+    """Reads an SOP instance file and extracts the cost matrix."""
     matrix, reading = [], False
     with open(filename) as f:
         for line in f:
@@ -17,8 +18,9 @@ def read_sop_file(filename):
                 matrix.append(list(map(int, line.split())))
     return matrix
 
-# --- 2. Extragem precedențele și succesorii ---
+# --- 2. Extract precedence and successor constraints from matrix ---
 def extract_precedences(mat):
+    """Builds precedence and successor lists based on -1 entries in the matrix."""
     n = len(mat)
     preds = {i: [] for i in range(n)}
     succs = {i: [] for i in range(n)}
@@ -29,8 +31,9 @@ def extract_precedences(mat):
                 succs[j].append(i)
     return preds, succs
 
-# --- 3. Generare inițială: random topological sort ---
+# --- 3. Generate initial solution using random topological sort ---
 def random_topo(preds, succs):
+    """Generates a random topological sort that respects precedence constraints."""
     n = len(preds)
     in_deg = {i: len(preds[i]) for i in preds}
     Q = [i for i, d in in_deg.items() if d == 0]
@@ -45,8 +48,9 @@ def random_topo(preds, succs):
                 Q.append(v)
     return order
 
-# --- 4. Verificare validitate și cost SOP ---
+# --- 4. Check if a permutation is valid (respects precedences) and compute cost ---
 def is_valid(perm, preds):
+    """Checks if a permutation respects all precedence constraints."""
     pos = {u: i for i, u in enumerate(perm)}
     for i, ps in preds.items():
         for j in ps:
@@ -54,12 +58,13 @@ def is_valid(perm, preds):
                 return False
     return True
 
-
 def cost_of(perm, mat):
+    """Computes the total cost of a permutation based on the cost matrix."""
     return sum(mat[perm[i]][perm[i + 1]] for i in range(len(perm) - 1))
 
-# --- 5. Repair local prin inserție ---
+# --- 5. Repair an invalid permutation using local reordering ---
 def repair(perm, preds):
+    """Fixes a permutation to make it valid by reordering based on precedences."""
     pos = {u: i for i, u in enumerate(perm)}
     for i, ps in preds.items():
         for j in ps:
@@ -68,28 +73,40 @@ def repair(perm, preds):
                 pos = {u: k for k, u in enumerate(perm)}
     return perm
 
-# --- 6. Generare candidați prin mutații multiple ---
+# --- 6. Generate candidate solutions by applying multiple mutation types ---
 def mutate_candidates(base, num_swaps):
+    """Generates new permutations using various mutation operations."""
     n = len(base)
     cands = []
+
+    # Swap two elements
     for _ in range(num_swaps):
         i, j = random.sample(range(n), 2)
         p = base.copy()
         p[i], p[j] = p[j], p[i]
         cands.append(p)
+
+    # Insertion mutation
     i, j = random.sample(range(n), 2)
     p = base.copy()
     u = p.pop(i)
     p.insert(j, u)
     cands.append(p)
+
+    # Reversal mutation
     i, j = sorted(random.sample(range(n), 2))
     p = base.copy()
     p[i:j + 1] = reversed(p[i:j + 1])
     cands.append(p)
+
     return cands
 
-# --- 7. GWO cu măsurare timp pe epocă și total ---
+# --- 7. Grey Wolf Optimizer with timing per epoch and total time ---
 def gwo_sop_with_timing(matrix, preds, succs, num_wolves=100, max_iter=300, num_runs=3):
+    """
+    Applies the Grey Wolf Optimizer to the SOP problem.
+    Tracks and prints timing for each run and iteration.
+    """
     all_scores = []
     all_perms = []
 
@@ -118,6 +135,7 @@ def gwo_sop_with_timing(matrix, preds, succs, num_wolves=100, max_iter=300, num_
                         p = leader.copy()
                         p[i], p[j] = p[j], p[i]
                         candidates.append(p)
+
                 candidates.append(X)
                 valid_cands = [repair(p.copy(), preds) for p in candidates if is_valid(repair(p.copy(), preds), preds)]
                 best = min(valid_cands, key=lambda p: cost_of(p, matrix))
@@ -145,9 +163,9 @@ def gwo_sop_with_timing(matrix, preds, succs, num_wolves=100, max_iter=300, num_
     print(f"\nTotal runs time: {total_time:.2f}s")
     return average_score, best_score, best_perm
 
-# Exemplu de rulare:
+# --- Example usage ---
 if __name__ == '__main__':
-    mat = read_sop_file('../Data/ESC47.sop')
+    mat = read_sop_file('../Data/p43.1.sop')
     preds, succs = extract_precedences(mat)
     avg, best_score, best_perm = gwo_sop_with_timing(mat, preds, succs)
     print('Avg:', avg)
