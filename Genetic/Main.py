@@ -159,7 +159,7 @@ def genetic_algorithm(matrix, constraints, pop_size=100, generations=1500):
 
 
 if __name__ == "__main__":
-    filename = r"..\Data\br17.10.sop"
+    filename = r"..\Data\ESC47.sop"
     matrix = read_sop_file_v2(filename)
     preds, succs = extract_precedences_v2(matrix)
     constraints = preds_to_constraints(preds)
