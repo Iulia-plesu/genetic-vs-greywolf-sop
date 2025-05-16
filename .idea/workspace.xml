@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="c471ff7a-21fe-4d5a-963b-e84e15049d34" name="Changes" comment="" />
+    <list default="true" id="c471ff7a-21fe-4d5a-963b-e84e15049d34" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/genetic-vs-greywolf-sop.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/genetic-vs-greywolf-sop.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/ESC07.sop" beforeDir="false" afterPath="$PROJECT_DIR$/Data/ESC07.sop" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/ESC47.sop" beforeDir="false" afterPath="$PROJECT_DIR$/Data/ESC47.sop" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/ESC63.sop" beforeDir="false" afterPath="$PROJECT_DIR$/Data/ESC63.sop" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/br17.10.sop" beforeDir="false" afterPath="$PROJECT_DIR$/Data/br17.10.sop" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/br17.12.sop" beforeDir="false" afterPath="$PROJECT_DIR$/Data/br17.12.sop" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/kro124p.4.sop" beforeDir="false" afterPath="$PROJECT_DIR$/Data/kro124p.4.sop" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Genetic/.idea/Genetic_alg.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic/.idea/Genetic_alg.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Genetic/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Genetic/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Genetic/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Genetic/Main.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

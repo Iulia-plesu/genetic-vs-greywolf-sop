@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Genetic_Greywolf/.idea/Genetic_Greywolf.iml" filepath="$PROJECT_DIR$/../Genetic_Greywolf/.idea/Genetic_Greywolf.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Genetic_alg.iml" filepath="$PROJECT_DIR$/.idea/Genetic_alg.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Greywolf/.idea/Greywolf.iml" filepath="$PROJECT_DIR$/../Greywolf/.idea/Greywolf.iml" />
     </modules>
   </component>
 </project>

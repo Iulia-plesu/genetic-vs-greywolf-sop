@@ -1,228 +1,179 @@
 import random
 import time
+import heapq
 
 
-def read_sop_file(path):
-    """
-    Reads an SOP file and returns the distance matrix and list of precedence constraints.
-
-    Parameters:
-        path (str): The path to the SOP file.
-
-    Returns:
-        tuple: (distance_matrix, precedence_constraints)
-    """
-    with open(path, 'r') as f:
-        lines = f.readlines()
-
-    size = 0
-    distance_matrix = []
-    edge_section_started = False
-
-
-    all_weights = []
-    for line in lines:
-        line = line.strip()
-
-        if line.startswith("DIMENSION"):
-            size = int(line.split(":")[1].strip())
-
-        elif line.startswith("EDGE_WEIGHT_SECTION"):
-            edge_section_started = True
-
-        elif edge_section_started:
-            if line == "EOF":
+def read_sop_file_v2(filename):
+    matrix, reading = [], False
+    with open(filename) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith('EDGE_WEIGHT_SECTION'):
+                reading = True
+                continue
+            if line == 'EOF':
                 break
-            parts = line.split()
-            row = [1000000 if int(x) == -1 else int(x) for x in parts]
-            all_weights.extend(row)
+            if reading and line:
+                matrix.append(list(map(int, line.split())))
+    return matrix
+
+def extract_precedences_v2(mat):
+    n = len(mat)
+    preds = {i: [] for i in range(n)}
+    succs = {i: [] for i in range(n)}
+    for i in range(n):
+        for j in range(n):
+            if mat[i][j] == -1:
+                preds[i].append(j)
+                succs[j].append(i)
+    return preds, succs
+
+def preds_to_constraints(preds):
+    return [(p, n) for n, pred in preds.items() for p in pred]
+
+def is_valid(sequence, constraints):
+    pos = {v: i for i, v in enumerate(sequence)}
+    return all(pos[a] < pos[b] for a, b in constraints)
+
+def fitness(route, matrix):
+    return sum(matrix[route[i]][route[i + 1]] for i in range(len(route) - 1))
 
 
-    for i in range(size):
-        start = i * size
-        end = start + size
-        distance_matrix.append(all_weights[start:end])
+def generate_initial_population(pop_size, nodes, constraints):
+    graph = {node: set() for node in nodes}
+    in_degree = {node: 0 for node in nodes}
+    for a, b in constraints:
+        graph[a].add(b)
+        in_degree[b] += 1
 
-    precedence_constraints = []
-
-    return distance_matrix, precedence_constraints
-
-
-def is_valid(sequence, precedence_constraints):
-    """
-    Checks if the given sequence respects the precedence constraints.
-
-    Parameters:
-        sequence (list): The sequence of nodes.
-        precedence_constraints (list): List of (a, b) tuples where a must come before b.
-
-    Returns:
-        bool: True if the sequence is valid; otherwise False.
-    """
-    return all(sequence.index(a) < sequence.index(b) for (a, b) in precedence_constraints)
-
-
-def generate_initial_population(pop_size, nodes, precedence_constraints):
-    """
-    Generates the initial population for the genetic algorithm.
-
-    Parameters:
-        pop_size (int): The size of the population.
-        nodes (list): List of nodes.
-        precedence_constraints (list): Precedence constraints.
-
-    Returns:
-        list: A list of valid permutations of nodes that satisfy the constraints.
-    """
     population = []
-    while len(population) < pop_size:
-        perm = random.sample(nodes, len(nodes))
-        if is_valid(perm, precedence_constraints):
-            population.append(perm)
+    for _ in range(pop_size):
+        in_deg = in_degree.copy()
+        candidates = [n for n in nodes if in_deg[n] == 0]
+        permutation = []
+        while candidates:
+            node = random.choice(candidates)
+            permutation.append(node)
+            candidates.remove(node)
+            for neighbor in graph[node]:
+                in_deg[neighbor] -= 1
+                if in_deg[neighbor] == 0:
+                    candidates.append(neighbor)
+        if len(permutation) == len(nodes):
+            population.append(permutation)
+        else:
+            population.append(repair_sequence(random.sample(nodes, len(nodes)), constraints))
     return population
 
 
-def fitness(route, distance_matrix):
-    """
-    Calculates the total cost of a route using the provided distance matrix.
+def repair_sequence(seq, constraints):
+    pos = {n: i for i, n in enumerate(seq)}
+    for a, b in constraints:
+        if pos[a] > pos[b]:
+            seq.remove(a)
+            seq.insert(pos[b], a)
+            pos = {n: i for i, n in enumerate(seq)}
+    return seq
 
-    Parameters:
-        route (list): The route (sequence of nodes).
-        distance_matrix (list): Matrix containing the distances between nodes.
+def tournament_selection(population, matrix, k=3):
+    return min(random.sample(population, k), key=lambda r: fitness(r, matrix))
 
-    Returns:
-        int: The cost of the route.
-    """
-    cost = 0
-    for i in range(len(route) - 1):
-        cost += distance_matrix[route[i]][route[i + 1]]
-    return cost
-
-
-def tournament_selection(population, distance_matrix, k=3):
-    """
-    Selects an individual from the population using the tournament method.
-
-    Parameters:
-        population (list): The current population.
-        distance_matrix (list): The distance matrix.
-        k (int): Number of individuals to participate in the tournament.
-
-    Returns:
-        list: The best route from the tournament selection.
-    """
-    selected = random.sample(population, k)
-    selected.sort(key=lambda r: fitness(r, distance_matrix))
-    return selected[0]
-
-
-def order_crossover(parent1, parent2, precedence_constraints):
-    """
-    Applies order crossover (OX) on two parents and returns a repaired child.
-
-    Parameters:
-        parent1 (list): The first parent.
-        parent2 (list): The second parent.
-        precedence_constraints (list): Precedence constraints used for repair.
-
-    Returns:
-        list: The child sequence after crossover and repair.
-    """
-    size = len(parent1)
+def order_crossover(p1, p2, constraints):
+    size = len(p1)
     a, b = sorted(random.sample(range(size), 2))
-    child_p1 = parent1[a:b + 1]
-    child_p2 = [item for item in parent2 if item not in child_p1]
-    child = child_p2[:a] + child_p1 + child_p2[a:]
-    return repair_sequence(child, precedence_constraints)
+    child = [None] * size
+    child[a:b+1] = p1[a:b+1]
 
+    fill = [x for x in p2 if x not in child]
+    idx = 0
+    for i in range(size):
+        if child[i] is None:
+            child[i] = fill[idx]
+            idx += 1
 
-def mutate(route, precedence_constraints, mutation_rate=0.1):
-    """
-    Applies mutation on a route with a given mutation probability and repairs the sequence.
+    return repair_sequence(child, constraints)
 
-    Parameters:
-        route (list): The route to be mutated.
-        precedence_constraints (list): Precedence constraints for repair.
-        mutation_rate (float): The probability of mutation.
-
-    Returns:
-        list: The mutated and repaired route.
-    """
+def mutate(route, constraints, mutation_rate):
     if random.random() < mutation_rate:
-        a, b = sorted(random.sample(range(len(route)), 2))
-        route[a], route[b] = route[b], route[a]
-        route = repair_sequence(route, precedence_constraints)
+        for _ in range(5):
+            i, j = sorted(random.sample(range(len(route)), 2))
+            route[i], route[j] = route[j], route[i]
+            if is_valid(route, constraints):
+                return route
+            route[i], route[j] = route[j], route[i]
+        return repair_sequence(route, constraints)
     return route
 
 
-def repair_sequence(route, precedence_constraints):
-    """
-    Repairs a sequence to ensure that all precedence constraints are met.
-
-    Parameters:
-        route (list): The sequence that requires repair.
-        precedence_constraints (list): List of precedence constraints.
-
-    Returns:
-        list: The repaired sequence.
-    """
-    for (a, b) in precedence_constraints:
-        if route.index(a) > route.index(b):
-            route.remove(a)
-            index_b = route.index(b)
-            route.insert(index_b, a)
-    return route
+def local_search(route, matrix, constraints):
+    best = route[:]
+    best_cost = fitness(best, matrix)
+    for _ in range(50):
+        i, j = sorted(random.sample(range(len(route)), 2))
+        new_route = best[:]
+        new_route[i], new_route[j] = new_route[j], new_route[i]
+        if is_valid(new_route, constraints):
+            new_cost = fitness(new_route, matrix)
+            if new_cost < best_cost:
+                best, best_cost = new_route, new_cost
+    return best
 
 
-def genetic_algorithm(distance_matrix, precedence_constraints, pop_size=50, generations=200):
-    """
-    Executes a genetic algorithm to find the optimal route based on the distance matrix.
-
-    Parameters:
-        distance_matrix (list): The matrix of distances between nodes.
-        precedence_constraints (list): Precedence constraints.
-        pop_size (int): The population size.
-        generations (int): The number of generations to evolve.
-
-    Returns:
-        tuple: (best_solution, best_cost)
-    """
-    nodes = list(range(len(distance_matrix)))
-    population = generate_initial_population(pop_size, nodes, precedence_constraints)
-    best_solution = min(population, key=lambda r: fitness(r, distance_matrix))
+def genetic_algorithm(matrix, constraints, pop_size=100, generations=1500):
+    nodes = list(range(len(matrix)))
+    population = generate_initial_population(pop_size, nodes, constraints)
+    best_solution = min(population, key=lambda r: fitness(r, matrix))
+    best_cost = fitness(best_solution, matrix)
+    mutation_rate = 0.1
     start_time = time.time()
 
     for gen in range(generations):
-        new_population = []
-        for _ in range(pop_size):
-            parent1 = tournament_selection(population, distance_matrix)
-            parent2 = tournament_selection(population, distance_matrix)
-            child = order_crossover(parent1, parent2, precedence_constraints)
-            child = mutate(child, precedence_constraints)
-            new_population.append(child)
+        population.sort(key=lambda r: fitness(r, matrix))
+        elites = population[:max(5, pop_size // 10)]
 
-        population = new_population
+        if gen % 100 == 0 and gen > 0:
+            mutation_rate = min(0.5, mutation_rate + 0.05)
 
-        gen_best = min(population, key=lambda r: fitness(r, distance_matrix))
-        if fitness(gen_best, distance_matrix) < fitness(best_solution, distance_matrix):
-            best_solution = gen_best
+        new_pop = elites[:]
+        while len(new_pop) < pop_size:
+            p1 = tournament_selection(population, matrix)
+            p2 = tournament_selection(population, matrix)
+            child = order_crossover(p1, p2, constraints)
+            child = mutate(child, constraints, mutation_rate)
+            new_pop.append(child)
 
-        if gen % 10 == 0:
-            print(
-                f"Gen {gen}: Best Cost = {fitness(best_solution, distance_matrix)} | Time: {time.time() - start_time:.2f}s")
-    print(f"\nTotal time: {time.time() - start_time:.2f} seconds")
+        population = new_pop
+        candidate = min(population, key=lambda r: fitness(r, matrix))
+        candidate = local_search(candidate, matrix, constraints)
+        cost = fitness(candidate, matrix)
 
-    return best_solution, fitness(best_solution, distance_matrix)
+        if cost < best_cost:
+            best_solution = candidate
+            best_cost = cost
+
+        if gen % 20 == 0:
+            print(f"Gen {gen}: Best cost = {best_cost:.2f} | Time: {time.time() - start_time:.2f}s")
+
+    print(f"\nFinal Time: {time.time() - start_time:.2f}s")
+    return best_solution, best_cost
 
 
 if __name__ == "__main__":
-    path = r"..\Data\ESC47.sop"
-    distance_matrix, precedence_constraints = read_sop_file(path)
+    filename = r"..\Data\br17.10.sop"
+    matrix = read_sop_file_v2(filename)
+    preds, succs = extract_precedences_v2(matrix)
+    constraints = preds_to_constraints(preds)
 
-    print(f"Matrix: {len(distance_matrix)} x {len(distance_matrix[0])}")
-    print(f"Number of constraints: {len(precedence_constraints)}")
+    print(f"Matrix size: {len(matrix)} x {len(matrix[0])}")
+    print(f"Precedence constraints: {len(constraints)}")
 
-    best_route, best_cost = genetic_algorithm(distance_matrix, precedence_constraints)
-    print(f"\nBest Route: {best_route}")
-    print(f"Number of elements: {len(best_route)}")
-    print(f"Cost: {best_cost}")
+    best_route, best_cost = genetic_algorithm(
+        matrix,
+        constraints,
+        pop_size=150,
+        generations=2500
+    )
+
+    print(f"\nBest route: {best_route}")
+    print(f"Best cost: {best_cost}")
+    print(f"Is valid? {is_valid(best_route, constraints)}")
